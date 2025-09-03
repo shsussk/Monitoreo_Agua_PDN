@@ -412,6 +412,23 @@
             margin-top: 1.5rem;
         }
 
+        /* Campos opcionales */
+        .optional-field {
+            position: relative;
+        }
+
+        .optional-field::after {
+            content: "Opcional";
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0 6px 0 4px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             #waterForm, #miniCards, #smallMultiples, #thresholdsForm {
@@ -438,6 +455,13 @@
 
             .action-buttons {
                 flex-direction: column;
+            }
+
+            .optional-field::after {
+                position: relative;
+                display: inline-block;
+                margin-left: 0.5rem;
+                border-radius: 4px;
             }
         }
 
@@ -545,8 +569,15 @@
                 <label><i class="fas fa-tint"></i> TDS (ppm) <input type="number" name="tds" required></label>
                 <label><i class="fas fa-thermometer-half"></i> Temperatura (°C) <input type="number" step="0.1" name="temperatura" required></label>
                 <label><i class="fas fa-bolt"></i> ORP (mV) <input type="number" name="orp" required></label>
-                <label><i class="fas fa-cloud-rain"></i> Lluvia 15d (mm) <input type="number" step="0.1" name="lluvia" required></label>
-                <label><i class="fas fa-wind"></i> Caudal (L/s) <input type="number" step="0.1" name="caudal" required></label>
+                
+                <div class="optional-field">
+                    <label><i class="fas fa-cloud-rain"></i> Lluvia 15d (mm) <input type="number" step="0.1" name="lluvia"></label>
+                </div>
+                
+                <div class="optional-field">
+                    <label><i class="fas fa-wind"></i> Caudal (L/s) <input type="number" step="0.1" name="caudal"></label>
+                </div>
+                
                 <label><i class="fas fa-sticky-note"></i> Notas de campo <textarea name="notas" rows="2"></textarea></label>
                 <button type="submit"><i class="fas fa-save"></i> Guardar medición</button>
             </form>
@@ -725,15 +756,21 @@
             const formdata = new FormData(this);
             let entry = {};
             for (let f of formdata.entries()) {
-                entry[f[0]] = f[1];
+                // Si el campo está vacío, no lo agregamos al objeto
+                if (f[1] !== "") {
+                    entry[f[0]] = f[1];
+                }
             }
-            entry.ce   = +entry.ce;
-            entry.ph   = +entry.ph;
-            entry.tds  = +entry.tds;
-            entry.temperatura = +entry.temperatura;
-            entry.orp  = +entry.orp;
-            entry.lluvia = +entry.lluvia;
-            entry.caudal = +entry.caudal;
+            
+            // Convertir a número los campos que lo requieren
+            if (entry.ce) entry.ce = +entry.ce;
+            if (entry.ph) entry.ph = +entry.ph;
+            if (entry.tds) entry.tds = +entry.tds;
+            if (entry.temperatura) entry.temperatura = +entry.temperatura;
+            if (entry.orp) entry.orp = +entry.orp;
+            if (entry.lluvia) entry.lluvia = +entry.lluvia;
+            if (entry.caudal) entry.caudal = +entry.caudal;
+            
             let data = getData();
             data.push(entry);
             saveData(data);
@@ -814,7 +851,7 @@
                 return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             });
             
-            let values = data.map(d => d[param]);
+            let values = data.map(d => d[param] !== undefined ? d[param] : null);
             let config = {
                 type: 'line',
                 data: {
@@ -904,7 +941,7 @@
                 return date.toLocaleDateString('es-ES', {day: '2-digit', month: '2-digit'});
             });
             
-            let values = data.map(d => d[key]);
+            let values = data.map(d => d[key] !== undefined ? d[key] : null);
             let div = document.getElementById(id);
             if (!div) return;
             
@@ -975,7 +1012,7 @@
                 rows.push(`<tr class="${rowClass}">
                     <td>${d.datetime.replace("T"," ")}</td>
                     <td>${d.source}</td>
-                    ${PARAMETERS.map(p => `<td>${d[p.key]}</td>`).join("")}
+                    ${PARAMETERS.map(p => `<td>${d[p.key] !== undefined ? d[p.key] : 'N/A'}</td>`).join("")}
                     <td><i class="fas ${icon}"></i> <b>${estado}</b></td>
                     <td><button class="btn btn-danger" onclick="deleteMeasurement(${index})"><i class="fas fa-trash"></i></button></td>
                 </tr>`);
@@ -1113,8 +1150,6 @@
                         tds: 240,
                         temperatura: 24.2,
                         orp: 180,
-                        lluvia: 5.2,
-                        caudal: 15.6,
                         notas: "Condiciones normales"
                     },
                     {
@@ -1125,7 +1160,6 @@
                         tds: 360,
                         temperatura: 23.1,
                         orp: 120,
-                        lluvia: 12.3,
                         caudal: 11.2,
                         notas: "Medición reciente"
                     }
