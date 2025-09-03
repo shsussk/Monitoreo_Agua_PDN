@@ -8,332 +8,74 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <h1 class="header__title">Monitor de Calidad del Agua</h1>
-            <nav class="nav">
-                <button class="btn btn--sm nav__btn active" data-section="dashboard">Panel</button>
-                <button class="btn btn--sm nav__btn" data-section="form">Formulario</button>
-                <button class="btn btn--sm nav__btn" data-section="trends">Tendencias</button>
-                <button class="btn btn--sm nav__btn" data-section="alerts">Alertas</button>
-                <button class="btn btn--sm nav__btn" data-section="config">Configuración</button>
-                <button class="btn btn--sm nav__btn" data-section="data">Datos</button>
-            </nav>
-        </div>
+    <header>
+        <h1>Monitor de Calidad del Agua</h1>
+        <nav>
+            <button onclick="showSection('dashboard')">Panel</button>
+            <button onclick="showSection('formulario')">Formulario</button>
+            <button onclick="showSection('tendencias')">Tendencias</button>
+            <button onclick="showSection('alertas')">Alertas</button>
+            <button onclick="showSection('configuracion')">Configuración</button>
+        </nav>
     </header>
 
-    <main class="main">
-        <div class="container">
-            <!-- Dashboard Section -->
-            <section id="dashboard" class="section active">
-                <h2>Panel de Control</h2>
-                <div class="dashboard-grid">
-                    <div class="card dashboard-card" id="card-canal">
-                        <div class="card__body">
-                            <h3>Canal Mayor</h3>
-                            <div class="status-indicator" id="status-canal">Sin datos</div>
-                            <div class="last-reading" id="reading-canal">-</div>
-                            <small class="text-secondary" id="date-canal">No hay mediciones</small>
-                        </div>
-                    </div>
-                    <div class="card dashboard-card" id="card-drenaje">
-                        <div class="card__body">
-                            <h3>Drenaje Almonte</h3>
-                            <div class="status-indicator" id="status-drenaje">Sin datos</div>
-                            <div class="last-reading" id="reading-drenaje">-</div>
-                            <small class="text-secondary" id="date-drenaje">No hay mediciones</small>
-                        </div>
-                    </div>
-                    <div class="card dashboard-card" id="card-laguna">
-                        <div class="card__body">
-                            <h3>Laguna Reservorio</h3>
-                            <div class="status-indicator" id="status-laguna">Sin datos</div>
-                            <div class="last-reading" id="reading-laguna">-</div>
-                            <small class="text-secondary" id="date-laguna">No hay mediciones</small>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    <!-- Panel -->
+    <main>
+        <section id="dashboard" class="app-section">
+            <h2>Estado Actual</h2>
+            <div id="miniCards"></div>
+        </section>
 
-            <!-- Form Section -->
-            <section id="form" class="section">
-                <h2>Registro de Mediciones</h2>
-                <div class="card">
-                    <div class="card__body">
-                        <form id="measurement-form">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="datetime">Fecha y Hora *</label>
-                                    <input type="datetime-local" class="form-control" id="datetime" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="source">Fuente de Agua *</label>
-                                    <select class="form-control" id="source" required>
-                                        <option value="">Seleccionar fuente</option>
-                                        <option value="Canal Mayor">Canal Mayor</option>
-                                        <option value="Drenaje Almonte">Drenaje Almonte</option>
-                                        <option value="Laguna Reservorio">Laguna Reservorio</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="ph">pH *</label>
-                                    <input type="number" class="form-control" id="ph" step="0.1" min="0" max="14" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="ce">CE - Conductividad (µS/cm) *</label>
-                                    <input type="number" class="form-control" id="ce" min="0" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="tds">TDS (ppm) *</label>
-                                    <input type="number" class="form-control" id="tds" min="0" required>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="temperatura">Temperatura (°C) *</label>
-                                    <input type="number" class="form-control" id="temperatura" step="0.1" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="orp">ORP (mV) *</label>
-                                    <input type="number" class="form-control" id="orp" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="lluvia">Lluvia 15d (mm)</label>
-                                    <input type="number" class="form-control" id="lluvia" step="0.1" min="0">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="caudal">Caudal (L/s)</label>
-                                    <input type="number" class="form-control" id="caudal" step="0.1" min="0">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="notes">Notas de Campo</label>
-                                <textarea class="form-control" id="notes" rows="3" placeholder="Observaciones adicionales..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn--primary">Guardar Medición</button>
-                        </form>
-                    </div>
-                </div>
-                <div id="form-message" class="message hidden"></div>
-            </section>
+        <!-- Formulario -->
+        <section id="formulario" class="app-section" style="display:none;">
+            <h2>Registrar nueva medición</h2>
+            <form id="waterForm">
+                <label>Fecha y hora <input type="datetime-local" name="datetime" required></label>
+                <label>Fuente
+                  <select name="source" required>
+                    <option>Canal Mayor</option>
+                    <option>Drenaje Almonte</option>
+                    <option>Laguna Reservorio</option>
+                  </select>
+                </label>
+                <label>pH <input type="number" step="0.1" name="ph" min="0" max="14" required></label>
+                <label>CE (µS/cm) <input type="number" name="ce" required></label>
+                <label>TDS (ppm) <input type="number" name="tds" required></label>
+                <label>Temperatura (°C) <input type="number" step="0.1" name="temperatura" required></label>
+                <label>ORP (mV) <input type="number" name="orp" required></label>
+                <label>Lluvia 15d (mm) <input type="number" step="0.1" name="lluvia" required></label>
+                <label>Caudal (L/s) <input type="number" step="0.1" name="caudal" required></label>
+                <label>Notas de campo <textarea name="notas" rows="2"></textarea></label>
+                <button type="submit">Guardar medición</button>
+            </form>
+        </section>
 
-            <!-- Trends Section -->
-            <section id="trends" class="section">
-                <h2>Tendencias</h2>
-                <div class="card">
-                    <div class="card__body">
-                        <div class="chart-controls">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="chart-source">Fuente</label>
-                                    <select class="form-control" id="chart-source">
-                                        <option value="">Todas las fuentes</option>
-                                        <option value="Canal Mayor">Canal Mayor</option>
-                                        <option value="Drenaje Almonte">Drenaje Almonte</option>
-                                        <option value="Laguna Reservorio">Laguna Reservorio</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="chart-parameter">Parámetro</label>
-                                    <select class="form-control" id="chart-parameter">
-                                        <option value="ph">pH</option>
-                                        <option value="ce">CE (µS/cm)</option>
-                                        <option value="tds">TDS (ppm)</option>
-                                        <option value="temperatura">Temperatura (°C)</option>
-                                        <option value="orp">ORP (mV)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="chart-container" style="position: relative; height: 400px;">
-                            <canvas id="trends-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <!-- Tendencias -->
+        <section id="tendencias" class="app-section" style="display:none;">
+            <h2>Tendencias por Parámetro</h2>
+            <div>
+                <select id="trendSource"></select>
+                <select id="trendParameter"></select>
+            </div>
+            <canvas id="trendChart" width="400" height="180"></canvas>
+            <h3>Gráficos múltiples</h3>
+            <div id="smallMultiples"></div>
+        </section>
 
-            <!-- Alerts Section -->
-            <section id="alerts" class="section">
-                <h2>Alertas</h2>
-                <div class="alerts-summary">
-                    <div class="summary-card ok">
-                        <span class="summary-label">OK</span>
-                        <span class="summary-count" id="ok-count">0</span>
-                    </div>
-                    <div class="summary-card watch">
-                        <span class="summary-label">VIGILANCIA</span>
-                        <span class="summary-count" id="watch-count">0</span>
-                    </div>
-                    <div class="summary-card alert">
-                        <span class="summary-label">ALERTA</span>
-                        <span class="summary-count" id="alert-count">0</span>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card__body">
-                        <div class="alerts-controls">
-                            <select class="form-control" id="alert-filter">
-                                <option value="">Todas las alertas</option>
-                                <option value="ALERTA">Solo Alertas</option>
-                                <option value="VIGILANCIA">Solo Vigilancia</option>
-                            </select>
-                        </div>
-                        <div class="alerts-table-container">
-                            <table class="alerts-table">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Fuente</th>
-                                        <th>Parámetro</th>
-                                        <th>Valor</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="alerts-table-body">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <!-- Alertas -->
+        <section id="alertas" class="app-section" style="display:none;">
+            <h2>Alertas</h2>
+            <div id="alertsTable"></div>
+        </section>
 
-            <!-- Configuration Section -->
-            <section id="config" class="section">
-                <h2>Configuración de Umbrales</h2>
-                <div class="card">
-                    <div class="card__body">
-                        <div class="config-grid">
-                            <div class="config-parameter">
-                                <h3>pH</h3>
-                                <div class="threshold-inputs">
-                                    <div class="form-group">
-                                        <label class="form-label">OK Mínimo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="ph" data-type="ok_min" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">OK Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="ph" data-type="ok_max" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Vigilancia Mínimo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="ph" data-type="watch_min" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Vigilancia Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="ph" data-type="watch_max" step="0.1">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="config-parameter">
-                                <h3>CE (µS/cm)</h3>
-                                <div class="threshold-inputs">
-                                    <div class="form-group">
-                                        <label class="form-label">OK Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="ce" data-type="ok_max">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Vigilancia Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="ce" data-type="watch_max">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="config-parameter">
-                                <h3>TDS (ppm)</h3>
-                                <div class="threshold-inputs">
-                                    <div class="form-group">
-                                        <label class="form-label">OK Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="tds" data-type="ok_max">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Vigilancia Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="tds" data-type="watch_max">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="config-parameter">
-                                <h3>Temperatura (°C)</h3>
-                                <div class="threshold-inputs">
-                                    <div class="form-group">
-                                        <label class="form-label">OK Mínimo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="temperatura" data-type="ok_min" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">OK Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="temperatura" data-type="ok_max" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Vigilancia Mínimo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="temperatura" data-type="watch_min" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Vigilancia Máximo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="temperatura" data-type="watch_max" step="0.1">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="config-parameter">
-                                <h3>ORP (mV)</h3>
-                                <div class="threshold-inputs">
-                                    <div class="form-group">
-                                        <label class="form-label">OK Mínimo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="orp" data-type="ok_min">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Vigilancia Mínimo</label>
-                                        <input type="number" class="form-control threshold-input" data-param="orp" data-type="watch_min">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="config-actions">
-                            <button class="btn btn--primary" id="save-thresholds">Guardar Configuración</button>
-                            <button class="btn btn--secondary" id="reset-thresholds">Restaurar Valores por Defecto</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="config-message" class="message hidden"></div>
-            </section>
-
-            <!-- Data Management Section -->
-            <section id="data" class="section">
-                <h2>Gestión de Datos</h2>
-                <div class="data-grid">
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Exportar Datos</h3>
-                            <p>Descargar todos los datos en formato CSV</p>
-                            <button class="btn btn--primary" id="export-data">Exportar CSV</button>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Importar Datos</h3>
-                            <p>Cargar datos desde archivo CSV</p>
-                            <input type="file" id="import-file" accept=".csv" class="form-control">
-                            <button class="btn btn--primary" id="import-data">Importar CSV</button>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Limpiar Datos</h3>
-                            <p>Eliminar todas las mediciones</p>
-                            <button class="btn btn--outline" id="clear-data" style="color: #dc3545; border-color: #dc3545;">Limpiar Todo</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="data-message" class="message hidden"></div>
-            </section>
-        </div>
+        <!-- Configuración -->
+        <section id="configuracion" class="app-section" style="display:none;">
+            <h2>Umbrales de parámetros</h2>
+            <form id="thresholdsForm"></form>
+        </section>
     </main>
 
     <script src="app.js"></script>
 </body>
 </html>
+
