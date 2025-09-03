@@ -150,6 +150,7 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
             transition: all 0.3s;
             border-left: 4px solid var(--primary);
+            position: relative;
         }
 
         .miniCard:hover {
@@ -303,7 +304,7 @@
         /* Configuración */
         #thresholdsForm {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.2rem;
         }
 
@@ -312,6 +313,14 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             background-color: var(--light);
+        }
+
+        .threshold-item h3 {
+            margin-top: 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         /* Estados */
@@ -354,6 +363,55 @@
             color: white;
         }
 
+        /* Botones de acción */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-edit {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-save {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background-color: #28a745;
+            transform: translateY(-2px);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             #waterForm, #miniCards, #smallMultiples, #thresholdsForm {
@@ -376,6 +434,10 @@
 
             #trendSource, #trendParameter {
                 width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
             }
         }
 
@@ -414,19 +476,34 @@
             background-color: var(--danger);
         }
 
-        /* Loading */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
     </style>
 </head>
@@ -458,9 +535,9 @@
                 <label><i class="fas fa-calendar-alt"></i> Fecha y hora <input type="datetime-local" name="datetime" required></label>
                 <label><i class="fas fa-water"></i> Fuente
                   <select name="source" required>
-                    <option>Canal Mayor</option>
-                    <option>Drenaje Almonte</option>
-                    <option>Laguna Reservorio</option>
+                    <option value="Canal Mayor">Canal Mayor</option>
+                    <option value="Drenaje Almonte">Drenaje Almonte</option>
+                    <option value="Laguna Reservorio">Laguna Reservorio</option>
                   </select>
                 </label>
                 <label><i class="fas fa-vial"></i> pH <input type="number" step="0.1" name="ph" min="0" max="14" required></label>
@@ -491,14 +568,39 @@
         <section id="alertas" class="app-section hidden">
             <h2><i class="fas fa-bell"></i> Alertas</h2>
             <div id="alertsTable"></div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="showClearDataModal()">
+                    <i class="fas fa-trash"></i> Borrar todos los datos
+                </button>
+            </div>
         </section>
 
         <!-- Configuración -->
         <section id="configuracion" class="app-section hidden">
             <h2><i class="fas fa-cog"></i> Umbrales de parámetros</h2>
             <form id="thresholdsForm"></form>
+            <div class="action-buttons">
+                <button class="btn btn-save" onclick="saveThresholds()">
+                    <i class="fas fa-save"></i> Guardar umbrales
+                </button>
+                <button class="btn btn-edit" onclick="resetThresholds()">
+                    <i class="fas fa-undo"></i> Restablecer valores por defecto
+                </button>
+            </div>
         </section>
     </main>
+
+    <!-- Modal para confirmar borrado de datos -->
+    <div id="clearDataModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-exclamation-triangle"></i> Confirmar borrado</h2>
+            <p>¿Estás seguro de que deseas borrar todos los datos? Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button class="btn" onclick="hideClearDataModal()">Cancelar</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Borrar todo</button>
+            </div>
+        </div>
+    </div>
 
     <div id="notification" class="notification hidden">
         <i class="fas fa-check-circle"></i>
@@ -518,8 +620,9 @@
             {key: "lluvia", label: "Lluvia 15d", unit: "mm"},
             {key: "caudal", label: "Caudal", unit: "L/s"}
         ];
-        // Umbrales para alertas
-        const THRESHOLDS = {
+        
+        // Umbrales por defecto para alertas
+        const DEFAULT_THRESHOLDS = {
             ph:    {ok: [6.5, 8.5], watch: [6.0, 9.0]},
             ce:    {ok: [0, 800],  watch: [0, 1500]},
             tds:   {ok: [0, 500],  watch: [0, 1000]},
@@ -531,8 +634,18 @@
         function getData() {
             return JSON.parse(localStorage.getItem("waterData") || "[]");
         }
+        
         function saveData(data) {
             localStorage.setItem("waterData", JSON.stringify(data));
+        }
+        
+        function getThresholds() {
+            const thresholds = localStorage.getItem("waterThresholds");
+            return thresholds ? JSON.parse(thresholds) : DEFAULT_THRESHOLDS;
+        }
+        
+        function saveThresholdsToStorage(thresholds) {
+            localStorage.setItem("waterThresholds", JSON.stringify(thresholds));
         }
 
         // ----- NOTIFICACIONES ----- //
@@ -636,7 +749,8 @@
 
         // ----- UMBRALES Y ESTADO ----- //
         function getStatus(key, value) {
-            const t = THRESHOLDS[key];
+            const thresholds = getThresholds();
+            const t = thresholds[key];
             if (!t) return "ok";
             if (key==="orp") {
                 if (value < 0) return "alert";
@@ -842,10 +956,10 @@
             }
             
             let rows = [`<tr>
-                <th>Fecha</th><th>Fuente</th>${PARAMETERS.map(p => `<th>${p.label}</th>`).join("")}<th>Estado</th>
+                <th>Fecha</th><th>Fuente</th>${PARAMETERS.map(p => `<th>${p.label}</th>`).join("")}<th>Estado</th><th>Acciones</th>
             </tr>`];
             
-            data.forEach(d => {
+            data.forEach((d, index) => {
                 let ceStat = getStatus("ce", d.ce), 
                     phStat = getStatus("ph", d.ph), 
                     orpStat = getStatus("orp", d.orp);
@@ -863,10 +977,103 @@
                     <td>${d.source}</td>
                     ${PARAMETERS.map(p => `<td>${d[p.key]}</td>`).join("")}
                     <td><i class="fas ${icon}"></i> <b>${estado}</b></td>
+                    <td><button class="btn btn-danger" onclick="deleteMeasurement(${index})"><i class="fas fa-trash"></i></button></td>
                 </tr>`);
             });
             
             div.innerHTML = `<table>${rows.join("")}</table>`;
+        }
+
+        // Eliminar una medición específica
+        function deleteMeasurement(index) {
+            let data = getData();
+            data.splice(index, 1);
+            saveData(data);
+            updateMiniCards();
+            updateTrendUI();
+            updateAlerts();
+            updateSmallMultiples();
+            showNotification("Medición eliminada correctamente");
+        }
+
+        // ----- CONFIGURACIÓN DE UMBRALES ----- //
+        function updateThresholdsForm() {
+            const thresholds = getThresholds();
+            let form = document.getElementById("thresholdsForm");
+            form.innerHTML = '';
+            
+            Object.keys(thresholds).forEach(key => {
+                const param = PARAMETERS.find(p => p.key === key);
+                if (param) {
+                    const t = thresholds[key];
+                    form.innerHTML += `
+                        <div class="threshold-item">
+                            <h3><i class="fas fa-sliders-h"></i> ${param.label} (${param.unit})</h3>
+                            <label>Rango OK - Mínimo:
+                                <input type="number" step="0.1" id="${key}_ok_min" value="${t.ok[0]}" ${param.min !== undefined ? `min="${param.min}"` : ''} ${param.max !== undefined ? `max="${param.max}"` : ''}>
+                            </label>
+                            <label>Rango OK - Máximo:
+                                <input type="number" step="0.1" id="${key}_ok_max" value="${t.ok[1] === Infinity ? '' : t.ok[1]}" placeholder="Infinito" ${param.min !== undefined ? `min="${param.min}"` : ''} ${param.max !== undefined ? `max="${param.max}"` : ''}>
+                            </label>
+                            <label>Rango Vigilancia - Mínimo:
+                                <input type="number" step="0.1" id="${key}_watch_min" value="${t.watch[0]}" ${param.min !== undefined ? `min="${param.min}"` : ''} ${param.max !== undefined ? `max="${param.max}"` : ''}>
+                            </label>
+                            <label>Rango Vigilancia - Máximo:
+                                <input type="number" step="0.1" id="${key}_watch_max" value="${t.watch[1] === Infinity ? '' : t.watch[1]}" placeholder="Infinito" ${param.min !== undefined ? `min="${param.min}"` : ''} ${param.max !== undefined ? `max="${param.max}"` : ''}>
+                            </label>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function saveThresholds() {
+            const thresholds = getThresholds();
+            
+            Object.keys(thresholds).forEach(key => {
+                const okMin = parseFloat(document.getElementById(`${key}_ok_min`).value);
+                let okMax = document.getElementById(`${key}_ok_max`).value;
+                okMax = okMax === '' ? Infinity : parseFloat(okMax);
+                
+                const watchMin = parseFloat(document.getElementById(`${key}_watch_min`).value);
+                let watchMax = document.getElementById(`${key}_watch_max`).value;
+                watchMax = watchMax === '' ? Infinity : parseFloat(watchMax);
+                
+                thresholds[key] = {
+                    ok: [okMin, okMax],
+                    watch: [watchMin, watchMax]
+                };
+            });
+            
+            saveThresholdsToStorage(thresholds);
+            showNotification("Umbrales guardados correctamente");
+        }
+
+        function resetThresholds() {
+            if (confirm("¿Restablecer los umbrales a los valores por defecto?")) {
+                saveThresholdsToStorage(DEFAULT_THRESHOLDS);
+                updateThresholdsForm();
+                showNotification("Umbrales restablecidos correctamente");
+            }
+        }
+
+        // ----- BORRAR DATOS ----- //
+        function showClearDataModal() {
+            document.getElementById('clearDataModal').style.display = 'flex';
+        }
+
+        function hideClearDataModal() {
+            document.getElementById('clearDataModal').style.display = 'none';
+        }
+
+        function clearAllData() {
+            saveData([]);
+            updateMiniCards();
+            updateTrendUI();
+            updateAlerts();
+            updateSmallMultiples();
+            hideClearDataModal();
+            showNotification("Todos los datos han sido borrados");
         }
 
         // ----- INICIALIZACIÓN AL CARGAR ----- //
@@ -930,6 +1137,7 @@
             updateTrendUI();
             updateSmallMultiples();
             updateAlerts();
+            updateThresholdsForm();
             
             // Navegación por defecto
             showSection('dashboard');
