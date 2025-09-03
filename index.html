@@ -4,7 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor de Calidad del Agua</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --warning: #f9ab00;
+            --danger: #ea4335;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #5f6368;
+            --border: #dadce0;
+            --ok: #d4edda;
+            --watch: #fff3cd;
+            --alert: #f8d7da;
+            --water: #1a73e8;
+            --water-light: #e3f2fd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #0066cc 100%);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        nav button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        nav button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .app-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        h3 {
+            margin: 1.5rem 0 1rem;
+            color: var(--gray);
+        }
+
+        /* Mini Cards */
+        #miniCards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .miniCard {
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .miniCard:hover {
+            transform: translateY(-3px);
+        }
+
+        .miniCard b {
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .miniCard div {
+            margin-bottom: 0.3rem;
+        }
+
+        .miniCard small {
+            color: var(--gray);
+        }
+
+        /* Formulario */
+        #waterForm {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-top: 0.3rem;
+        }
+
+        button[type="submit"] {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            grid-column: 1 / -1;
+            justify-self: start;
+            margin-top: 1rem;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0d62d9;
+        }
+
+        /* Tendencias */
+        #trendSource, #trendParameter {
+            margin-bottom: 1rem;
+            min-width: 200px;
+        }
+
+        #trendChart {
+            width: 100% !important;
+            max-height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        #smallMultiples {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Alertas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Configuración */
+        #thresholdsForm {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .threshold-item {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        /* Estados */
+        .ok { background-color: var(--ok); color: #155724; }
+        .watch { background-color: var(--watch); color: #856404; }
+        .alert { background-color: var(--alert); color: #721c24; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #waterForm, #miniCards, #smallMultiples, #thresholdsForm {
+                grid-template-columns: 1fr;
+            }
+            
+            nav {
+                flex-direction: column;
+            }
+            
+            nav button {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* Utilidades */
+        .hidden {
+            display: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -27,7 +277,7 @@
         </section>
 
         <!-- Formulario -->
-        <section id="formulario" class="app-section" style="display:none;">
+        <section id="formulario" class="app-section hidden">
             <h2>Registrar nueva medición</h2>
             <form id="waterForm">
                 <label>Fecha y hora <input type="datetime-local" name="datetime" required></label>
@@ -51,7 +301,7 @@
         </section>
 
         <!-- Tendencias -->
-        <section id="tendencias" class="app-section" style="display:none;">
+        <section id="tendencias" class="app-section hidden">
             <h2>Tendencias por Parámetro</h2>
             <div>
                 <select id="trendSource"></select>
@@ -63,19 +313,291 @@
         </section>
 
         <!-- Alertas -->
-        <section id="alertas" class="app-section" style="display:none;">
+        <section id="alertas" class="app-section hidden">
             <h2>Alertas</h2>
             <div id="alertsTable"></div>
         </section>
 
         <!-- Configuración -->
-        <section id="configuracion" class="app-section" style="display:none;">
+        <section id="configuracion" class="app-section hidden">
             <h2>Umbrales de parámetros</h2>
             <form id="thresholdsForm"></form>
         </section>
     </main>
 
-    <script src="app.js"></script>
+    <script>
+        // ----- CONFIGURACIÓN ----- //
+        const SOURCES = ["Canal Mayor", "Drenaje Almonte", "Laguna Reservorio"];
+        const PARAMETERS = [
+            {key: "ph", label: "pH", unit: "", min: 0, max: 14},
+            {key: "ce", label: "CE", unit: "µS/cm"},
+            {key: "tds", label: "TDS", unit: "ppm"},
+            {key: "temperatura", label: "Temperatura", unit: "°C"},
+            {key: "orp", label: "ORP", unit: "mV"},
+            {key: "lluvia", label: "Lluvia 15d", unit: "mm"},
+            {key: "caudal", label: "Caudal", unit: "L/s"}
+        ];
+        // Umbrales para alertas (ajusta aquí si lo necesitas)
+        const THRESHOLDS = {
+            ph:    {ok: [6.5, 8.5], watch: [6.0, 9.0]},
+            ce:    {ok: [0, 800],  watch: [0, 1500]},
+            tds:   {ok: [0, 500],  watch: [0, 1000]},
+            temperatura: {ok: [18, 30], watch: [15, 34]},
+            orp:   {ok: [50, Infinity], watch: [0, 49]}
+        };
+
+        // ----- LOCAL STORAGE ----- //
+        function getData() {
+            return JSON.parse(localStorage.getItem("waterData") || "[]");
+        }
+        function saveData(data) {
+            localStorage.setItem("waterData", JSON.stringify(data));
+        }
+
+        // ----- PANEL DE CONTROL ----- //
+        function updateMiniCards() {
+            const data = getData();
+            let cards = "";
+            SOURCES.forEach(src => {
+                const srcData = data.filter(d => d.source === src);
+                let last = srcData.length ? srcData[srcData.length-1] : null;
+                if (!last) {
+                    cards += `<div class="miniCard">${src}<br><b>Sin datos</b></div>`;
+                    return;
+                }
+                // Determinar estado general por CE, pH, ORP
+                let ceStat = getStatus("ce", +last.ce);
+                let phStat = getStatus("ph", +last.ph);
+                let orpStat = getStatus("orp", +last.orp);
+                let estado = ceStat === "alert" || orpStat === "alert" ? "alert" :
+                             (ceStat === "watch" || phStat === "watch" || orpStat === "watch" ? "watch" : "ok");
+                let color = estado === "ok" ? "#28a745" : (estado === "watch" ? "#ffc107" : "#dc3545");
+                cards += `
+                <div class="miniCard ${estado}">
+                    <div><b>${src}</b></div>
+                    <div>CE: ${last.ce} µS/cm <span class="status-badge ${ceStat}">${ceStat}</span></div>
+                    <div>pH: ${last.ph} <span class="status-badge ${phStat}">${phStat}</span></div>
+                    <div>ORP: ${last.orp} mV <span class="status-badge ${orpStat}">${orpStat}</span></div>
+                    <div><small>${last.datetime.replace("T"," ")}</small></div>
+                </div>`;
+            });
+            document.getElementById("miniCards").innerHTML = cards;
+        }
+
+        // ----- FORMULARIO ----- //
+        document.getElementById("waterForm").onsubmit = function(ev) {
+            ev.preventDefault();
+            const formdata = new FormData(this);
+            let entry = {};
+            for (let f of formdata.entries()) {
+                entry[f[0]] = f[1];
+            }
+            entry.ce   = +entry.ce;
+            entry.ph   = +entry.ph;
+            entry.tds  = +entry.tds;
+            entry.temperatura = +entry.temperatura;
+            entry.orp  = +entry.orp;
+            entry.lluvia = +entry.lluvia;
+            entry.caudal = +entry.caudal;
+            let data = getData();
+            data.push(entry);
+            saveData(data);
+            this.reset();
+            updateMiniCards();
+            updateTrendUI();
+            updateAlerts();
+            updateSmallMultiples();
+            alert("¡Medición guardada!");
+            showSection('dashboard');
+            return false;
+        }
+
+        // ----- NAVEGACIÓN ENTRE SECCIONES ----- //
+        function showSection(sec) {
+            document.querySelectorAll('.app-section').forEach(e=>e.classList.add("hidden"));
+            document.getElementById(sec).classList.remove("hidden");
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            });
+            event.target.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+        }
+
+        // ----- UMRALES Y ESTADO ----- //
+        function getStatus(key, value) {
+            const t = THRESHOLDS[key];
+            if (!t) return "ok";
+            if (key==="orp") {
+                if (value < 0) return "alert";
+                if (value < t.ok[0]) return "watch";
+                return "ok";
+            }
+            if (key==="ph") {
+                if (value < t.watch[0] || value > t.watch[1]) return "alert";
+                if (value < t.ok[0] || value > t.ok[1]) return "watch";
+                return "ok";
+            }
+            if (t.ok && t.ok[1]!==undefined && value > t.ok[1]) { // upper bound
+                if (t.watch && value > t.watch[1]) return "alert";
+                return "watch";
+            }
+            if (t.ok && t.ok[0]!==undefined && value < t.ok[0]) { // lower bound
+                if (t.watch && value < t.watch[0]) return "alert";
+                return "watch";
+            }
+            return "ok";
+        }
+
+        // ----- GRÁFICOS DE TENDENCIA ----- //
+        let trendChart;
+        function updateTrendUI() {
+            // actualiza el selector de fuente y parámetro, si no existen
+            let sSel = document.getElementById("trendSource");
+            let pSel = document.getElementById("trendParameter");
+            if (!sSel.children.length) {
+                SOURCES.forEach(src => {
+                    let op = document.createElement("option"); op.value=src; op.textContent=src; sSel.appendChild(op);
+                });
+            }
+            if (!pSel.children.length) {
+                PARAMETERS.forEach(p => {
+                    let op = document.createElement("option"); op.value=p.key; op.textContent=p.label; pSel.appendChild(op);
+                });
+            }
+            sSel.onchange = pSel.onchange = drawTrendChart;
+            drawTrendChart();
+        }
+
+        function drawTrendChart() {
+            let src = document.getElementById("trendSource").value;
+            let param = document.getElementById("trendParameter").value;
+            let data = getData().filter(d => d.source === src);
+            let labels = data.map(d=>d.datetime.replace("T", " "));
+            let values = data.map(d=>d[param]);
+            let config = {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: PARAMETERS.find(p=>p.key===param).label,
+                        data: values,
+                        borderColor: "#28a745",
+                        backgroundColor: "#28a74533",
+                        fill: false
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            };
+            if (trendChart) trendChart.destroy();
+            let ctx = document.getElementById("trendChart").getContext("2d");
+            trendChart = new Chart(ctx, config);
+        }
+
+        // ----- GRÁFICOS DE RELACIÓN ENTRE VARIABLES (extra) ----- //
+        // Ejemplo: CE vs TDS por fuente (puedes adaptar a otras variables)
+        function drawRelationChart(xvar, yvar, src, id) {
+            let data = getData().filter(d=>d.source===src);
+            let x = data.map(d=>d[xvar]);
+            let y = data.map(d=>d[yvar]);
+            let chartDiv = document.getElementById(id);
+            chartDiv.innerHTML = `<canvas width="320" height="160"></canvas>`;
+            let ctx = chartDiv.firstChild.getContext("2d");
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: src + ": " + xvar+" vs "+yvar,
+                        data: x.map((xi, i)=>({x: xi, y: y[i]})),
+                        backgroundColor: "rgba(41,150,161,0.7)"
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: true }},
+                    scales: { x: { title:{display:true,text:xvar} }, y: { title: {display:true,text:yvar}} }
+                }
+            });
+        }
+
+        // ----- MULTIGRÁFICOS POR PARÁMETROS (small multiples) ----- //
+        function updateSmallMultiples() {
+            let div = document.getElementById("smallMultiples");
+            div.innerHTML = "";
+            SOURCES.forEach(src => {
+                PARAMETERS.forEach(p => {
+                    let id = `sm-${src.replace(/\s/g,'')}-${p.key}`;
+                    div.innerHTML += `<div style="display:inline-block;width:300px;padding:3px 9px">
+                        <b>${src} - ${p.label}</b>
+                        <div id="${id}" style="width:280px;height:100px"></div>
+                    </div>`;
+                    setTimeout(()=>{
+                        drawMiniChart(src, p.key, id);
+                    },1);
+                });
+            });
+        }
+        function drawMiniChart(src, key, id) {
+            let data = getData().filter(d=>d.source===src);
+            let labels = data.map(d=>d.datetime.slice(5,16).replace("T"," "));
+            let values = data.map(d=>d[key]);
+            let div = document.getElementById(id);
+            if (!div) return;
+            div.innerHTML = `<canvas width="260" height="80"></canvas>`;
+            let ctx = div.firstChild.getContext("2d");
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: key, data: values,
+                        borderColor: "#2680ff", pointRadius:2, fill:false
+                    }]
+                },
+                options: {plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:5}},y:{beginAtZero:true}}}
+            });
+        }
+
+        // ----- ALERTAS ----- //
+        function updateAlerts() {
+            let div = document.getElementById("alertsTable");
+            let data = getData();
+            let rows = [`<tr>
+            <th>Fecha</th><th>Fuente</th>${PARAMETERS.map(p=>`<th>${p.label}</th>`).join("")}<th>Estado</th>
+            </tr>`];
+            data.forEach(d=>{
+                let ceStat = getStatus("ce", d.ce), phStat = getStatus("ph", d.ph), orpStat = getStatus("orp", d.orp);
+                let estado = ceStat === "alert" || orpStat === "alert"
+                              ? "ALERTA"
+                              : (ceStat === "watch" || phStat === "watch" || orpStat === "watch"
+                                 ? "VIGILANCIA" : "OK");
+                let col = estado === "ALERTA"? "var(--alert)" : estado==="VIGILANCIA"?"var(--watch)":"var(--ok)";
+                rows.push(`<tr style="background:${col}">
+                <td>${d.datetime.replace("T"," ")}</td>
+                <td>${d.source}</td>
+                ${PARAMETERS.map(p=>`<td>${d[p.key]}</td>`).join("")}
+                <td><b>${estado}</b></td>
+                </tr>`);
+            });
+            div.innerHTML = `<table>${rows.join("")}</table>`;
+        }
+
+        // ----- INICIALIZACIÓN AL CARGAR ----- //
+        window.onload = function() {
+            updateMiniCards();
+            updateTrendUI();
+            updateSmallMultiples();
+            updateAlerts();
+            // Navegación default
+            showSection('dashboard');
+        };
+    </script>
 </body>
 </html>
 
